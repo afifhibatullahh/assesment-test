@@ -16,9 +16,9 @@ const ToastC = ({ severity, message, open, setState }) => {
   }, [open]);
   if (open)
     return (
-      <div className={`toast toast-top toast-end`}>
+      <div className={`toast toast-top toast-center z-10`}>
         <div className={`alert alert-${severity}`}>
-          <span>{message}</span>
+          <span className="text-white">{message}</span>
         </div>
       </div>
     );

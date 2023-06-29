@@ -32,6 +32,7 @@ const AuthProvider = ({ children }) => {
 
   const handleLogout = () => {
     setToken(null);
+    localStorage.clear();
     navigate("/login");
   };
 

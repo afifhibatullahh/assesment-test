@@ -9,7 +9,7 @@ const GET_PRODUCT = async (id) => {
 };
 
 const GET_PRODUCTS = async (page, search, signal) => {
-  return await axios.get(`product?page=${page}$search=${search}`, {
+  return await axios.get(`product?page=${page}&search=${search}`, {
     headers,
     signal: signal,
   });
