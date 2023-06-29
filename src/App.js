@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import { RouterProvider } from "react-router";
+import Navbar from "./components/Navbar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AuthProvider from "./context/authContext";
+import { router } from "./routes";
+import { ToastContextProvider } from "./context/ToastContext";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnmount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: false,
+    },
+  },
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <ToastContextProvider>
+        <Navbar />
+        <RouterProvider router={router} />
+      </ToastContextProvider>
+    </QueryClientProvider>
   );
 }
 
