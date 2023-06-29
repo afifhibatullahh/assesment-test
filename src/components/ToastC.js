@@ -8,7 +8,7 @@ const ToastC = ({ severity, message, open, setState }) => {
       counter.current += 1;
       const timer = setTimeout(
         () => setState({ severity, message, open: false }),
-        1000
+        2000
       );
 
       return () => clearTimeout(timer);
