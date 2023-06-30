@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/authContext";
-import { useQuery } from "@tanstack/react-query";
-import { GET_PRODUCTS } from "../services/product";
-import Paginate from "../components/Paginate";
-import InputDebounce from "../components/InputDebounce";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DELETE_PRODUCT, GET_PRODUCTS } from "../services/product";
+import { useToast } from "../hooks/useToast";
+import { Dialog, InputDebounce, Loading, Paginate } from "../components";
 import ModalForm from "./product/ModalForm";
+import TableProduct from "./product/TableProduct";
 
 const DashboardPage = () => {
-  const { token } = useAuth();
+  const [selectedProduct, setSelectedProduct] = useState({});
+  const queryClient = useQueryClient();
+  const toast = useToast();
+
   const [filter, setFilter] = useState({
     page: 1,
     search: "",
   });
 
-  const { data, isSuccess, isError } = useQuery(
+  const { data, isSuccess, refetch, isLoading } = useQuery(
     ["products", filter],
     async ({ signal }) =>
       await GET_PRODUCTS(filter.page, filter.search, signal),
@@ -44,6 +47,21 @@ const DashboardPage = () => {
     }
   };
 
+  const deleteMutation = useMutation((id) => DELETE_PRODUCT(id), {
+    onSuccess: (data) => {
+      toast.success("Data berhasil dihapus");
+      queryClient.invalidateQueries(["products", filter]);
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error("Terjadi kesalahan : ", error.message);
+    },
+  });
+
+  const handleDelete = (data) => {
+    deleteMutation.mutateAsync(data);
+  };
+
   return (
     <div class="container mx-auto px-5">
       <div class="overflow-x-auto">
@@ -61,39 +79,30 @@ const DashboardPage = () => {
           <button className="btn" onClick={() => window.my_modal_5.showModal()}>
             + Barang
           </button>
-          <ModalForm />
+          <ModalForm
+            refetch={refetch}
+            selectedProduct={selectedProduct}
+            setSelectedProduct={setSelectedProduct}
+          />
         </div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Nama Barang</th>
-              <th>Gambar</th>
-              <th>Harga Beli</th>
-              <th>Harga Jual</th>
-              <th>Stok</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isSuccess &&
-              products?.map((product, i) => {
-                return (
-                  <tr>
-                    <th>{(filter.page - 1) * 10 + i + 1}</th>
-                    <th>{product.name}</th>
-                    <td>{product.image}</td>
-                    <td>{product.purchasePrice}</td>
-                    <td>{product.salesPrice}</td>
-                    <td>{product.stock}</td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <TableProduct
+            products={products}
+            setSelectedProduct={setSelectedProduct}
+            filter={filter}
+            isSuccess={isSuccess}
+          />
+        )}
         <div class="flex justify-end">
           <Paginate data={filter} onNext={nextPage} onPrev={prevPage} />
         </div>
       </div>
+      <Dialog
+        onClick={() => handleDelete(selectedProduct._id)}
+        onClose={() => setSelectedProduct({})}
+      />
     </div>
   );
 };

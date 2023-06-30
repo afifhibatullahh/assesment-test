@@ -1,9 +1,13 @@
-import React from "react";
-import { InputForm } from "../../components";
+import React, { useEffect, useState } from "react";
+import { InputForm, TextAlt } from "../../components";
 import { Controller, useForm } from "react-hook-form";
 import { useToast } from "../../hooks/useToast";
 
-const ModalForm = () => {
+import { CREATE_PRODUCT, UPDATE_PRODUCT } from "../../services/product";
+
+const ModalForm = ({ selectedProduct, setSelectedProduct, refetch }) => {
+  const { name, purchasePrice, salesPrice, stock } = selectedProduct;
+  const [processing, setProcessing] = useState(false);
   const {
     handleSubmit,
     control,
@@ -12,56 +16,84 @@ const ModalForm = () => {
     formState: { errors },
   } = useForm();
   const toast = useToast();
+  const isEdit = Object.keys(selectedProduct).length;
+
+  useEffect(() => {
+    reset({
+      name: name ?? "",
+      purchasePrice: purchasePrice ?? "",
+      salesPrice: salesPrice ?? "",
+      stock: stock ?? "",
+    });
+  }, [selectedProduct]);
+
+  const isValidFileUploaded = (file) => {
+    const validFileSize = file.size / 1024 < 100;
+    const validExtensions = ["png", "jpg", "jpeg"];
+    const fileExtension = file.type.split("/")[1];
+
+    return validExtensions.includes(fileExtension) && validFileSize;
+  };
 
   const onSubmit = async (data) => {
-    console.log(data);
+    setProcessing(true);
     try {
-      const isValidFileUploaded = (file) => {
-        const validFileSize = file.size / 1024 < 100;
-        const validExtensions = ["png", "jpg"];
-        const fileExtension = file.type.split("/")[1];
-
-        return validExtensions.includes(fileExtension) && validFileSize;
-      };
-
       if (isValidFileUploaded(data.image[0])) {
-        toast.success("success");
+        let formData = new FormData();
+        for (let key in data) {
+          if (key === "image") formData.append(key, data[key][0]);
+          else formData.append(key, data[key]);
+        }
+
+        let res;
+        if (isEdit) res = await UPDATE_PRODUCT(selectedProduct._id, formData);
+        else res = await CREATE_PRODUCT(formData);
+
+        if (res.status >= 200 && res.status < 300) {
+          window.my_modal_5.close();
+          handleClose();
+          refetch();
+          toast.success("Data berhasil disimpan");
+        }
       } else {
-        toast.error("Gambar harus berformat jpg/png dan kurang dari 100kb");
+        alert("Gambar harus berformat jpg/png dan kurang dari 100kb");
       }
-
-      const formData = new FormData();
-      formData.append("file", data?.image[0]);
     } catch (error) {
-      toast.error(error.message);
+      alert(error.response.data.message);
     }
+    setProcessing(false);
+  };
 
-    // const res = await fetch("http://localhost:5000/upload-file", {
-    //   method: "POST",
-    //   body: formData,
-    // }).then((res) => res.json());
-    // alert(JSON.stringify(`${res.message}, status: ${res.status}`));
+  const handleClose = () => {
+    reset();
+    setSelectedProduct({});
   };
 
   return (
     <>
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+      <dialog
+        id="my_modal_5"
+        className="modal modal-bottom sm:modal-middle z-50"
+      >
         <form className="modal-box" onSubmit={handleSubmit(onSubmit)}>
           <span
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             onClick={() => {
               window.my_modal_5.close();
-              reset();
+              handleClose();
             }}
           >
             ✕
           </span>
-          <h3 className="font-bold text-lg">Tambah Barang</h3>
+          <h3 className="font-bold text-lg">
+            {isEdit ? "Edit" : "Tambah"} Barang
+          </h3>
 
           <div className="py-3">
             <Controller
               control={control}
               name="name"
+              defaultValue={name}
               rules={{ required: true }}
               render={({ field }) => (
                 <InputForm
@@ -71,11 +103,7 @@ const ModalForm = () => {
                 />
               )}
             />
-            {errors.name && (
-              <span className="label-text-alt text-red-500">
-                This field is required
-              </span>
-            )}
+            {errors.name && <TextAlt />}
 
             <label className="label">
               <span className="label-text">Gambar</span>
@@ -85,11 +113,7 @@ const ModalForm = () => {
               className="file-input file-input-bordered file-input-info w-full"
               {...register("image", { required: true })}
             />
-            {errors.image && (
-              <span className="label-text-alt text-red-500">
-                This field is required
-              </span>
-            )}
+            {errors.image && <TextAlt />}
             <Controller
               control={control}
               name="purchasePrice"
@@ -103,11 +127,7 @@ const ModalForm = () => {
                 />
               )}
             />
-            {errors.purchasePrice && (
-              <span className="label-text-alt text-red-500">
-                This field is required
-              </span>
-            )}
+            {errors.purchasePrice && <TextAlt />}
             <Controller
               control={control}
               name="salesPrice"
@@ -121,11 +141,7 @@ const ModalForm = () => {
                 />
               )}
             />
-            {errors.salesPrice && (
-              <span className="label-text-alt text-red-500">
-                This field is required
-              </span>
-            )}
+            {errors.salesPrice && <TextAlt />}
             <Controller
               control={control}
               name="stock"
@@ -139,16 +155,15 @@ const ModalForm = () => {
                 />
               )}
             />
-            {errors.stock && (
-              <span className="label-text-alt text-red-500">
-                This field is required
-              </span>
-            )}
+            {errors.stock && <TextAlt />}
           </div>
           <div className="modal-action">
             <button type="submit" className="btn btn-info text-white">
-              Simpan
-              {/* <span className="loading loading-spinner"></span> */}
+              {processing ? (
+                <span className="loading loading-spinner"></span>
+              ) : (
+                "Simpan"
+              )}
             </button>
           </div>
         </form>

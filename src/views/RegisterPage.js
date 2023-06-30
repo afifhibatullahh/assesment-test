@@ -1,12 +1,12 @@
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ButtonC, InputC } from "../components";
+import { ButtonC, InputC, TextAlt } from "../components";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/authContext";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { onLogin } = useAuth();
+  const { onRegister } = useAuth();
   const {
     handleSubmit,
     control,
@@ -19,7 +19,7 @@ const RegisterPage = () => {
     },
   });
 
-  const onSubmit = (data) => {};
+  const onSubmit = (data) => onRegister(data);
 
   return (
     <div class="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
@@ -48,7 +48,7 @@ const RegisterPage = () => {
                   )}
                 />
 
-                {errors.email && <span>This field is required</span>}
+                {errors.email && <TextAlt />}
               </div>
               <div className="mt-2.5">
                 <Controller
@@ -59,7 +59,7 @@ const RegisterPage = () => {
                     <InputC type="text" label="Username" {...field} />
                   )}
                 />
-                {errors.username && <span>This field is required</span>}
+                {errors.username && <TextAlt />}
               </div>
               <div className="mt-2.5">
                 <Controller
@@ -70,7 +70,7 @@ const RegisterPage = () => {
                     <InputC type="password" label="Password" {...field} />
                   )}
                 />
-                {errors.password && <span>This field is required</span>}
+                {errors.password && <TextAlt />}
               </div>
               <div class="mt-10">
                 <ButtonC type="submit" label={"Sign Up"} />

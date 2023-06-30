@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ButtonC, InputC } from "../components";
+import { ButtonC, InputC, TextAlt } from "../components";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/authContext";
 
@@ -48,7 +48,7 @@ const LoginPage = () => {
                   )}
                 />
 
-                {errors.email && <span>This field is required</span>}
+                {errors.email && <TextAlt />}
               </div>
               <div className="mt-2.5">
                 <Controller
@@ -59,7 +59,7 @@ const LoginPage = () => {
                     <InputC type="password" label="Password" {...field} />
                   )}
                 />
-                {errors.password && <span>This field is required</span>}
+                {errors.password && <TextAlt />}
               </div>
               <div class="mt-10">
                 <ButtonC type="submit" label={"Sign In"} />

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { LOGIN } from "../services/auth";
+import { LOGIN, REGISTER } from "../services/auth";
 import { useToast } from "../hooks/useToast";
 
 const AuthContext = createContext(null);
@@ -30,6 +30,20 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  const handleRegister = async (data) => {
+    try {
+      const res = await REGISTER(data.email, data.username, data.password);
+      const tokenn = res.data.userDetails.token;
+      setToken(tokenn);
+      localStorage.setItem("token", tokenn);
+      const origin = location.state?.from?.pathname || "/";
+      navigate(origin);
+      toast.success("Register berhasil");
+    } catch (error) {
+      toast.error(error.response.data);
+    }
+  };
+
   const handleLogout = () => {
     setToken(null);
     localStorage.clear();
@@ -39,6 +53,7 @@ const AuthProvider = ({ children }) => {
   const value = {
     token,
     onLogin: handleLogin,
+    onRegister: handleRegister,
     onLogout: handleLogout,
   };
 
