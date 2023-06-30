@@ -21,7 +21,13 @@ const TableProduct = ({ products, setSelectedProduct, filter, isSuccess }) => {
               <tr key={i}>
                 <th>{(filter.page - 1) * 10 + i + 1}</th>
                 <th className="w-20">{product.name}</th>
-                <td className="w-20">{product.image}</td>
+                <td className="w-20">
+                  <div className="avatar">
+                    <div className="mask mask-squircle w-20 h-20">
+                      <img src={product.image} alt={`Gambar ${product.name}`} />
+                    </div>
+                  </div>
+                </td>
                 <td>{product.purchasePrice}</td>
                 <td>{product.salesPrice}</td>
                 <td>{product.stock}</td>
