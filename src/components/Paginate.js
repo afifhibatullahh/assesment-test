@@ -3,7 +3,7 @@ import React from "react";
 const Paginate = ({ onPrev, onNext, data }) => {
   const { total, page } = data;
   return (
-    <div className="join grid grid-cols-2">
+    <div className="join grid grid-cols-2 pb-7">
       <button
         disabled={page === 1}
         className="join-item btn btn"
