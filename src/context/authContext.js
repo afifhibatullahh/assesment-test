@@ -25,6 +25,7 @@ const AuthProvider = ({ children }) => {
       const origin = location.state?.from?.pathname || "/";
       navigate(origin);
       toast.success("Login berhasil");
+      window.location.reload();
     } catch (error) {
       toast.error(error.response.data);
     }
@@ -39,6 +40,7 @@ const AuthProvider = ({ children }) => {
       const origin = location.state?.from?.pathname || "/";
       navigate(origin);
       toast.success("Register berhasil");
+      window.location.reload();
     } catch (error) {
       toast.error(error.response.data);
     }
